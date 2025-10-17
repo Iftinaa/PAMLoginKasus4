@@ -9,14 +9,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LoginScreen(onLogin: () -> Unit, onDaftar: () -> Unit) {
+fun LoginScreen(
+    onLogin: (email: String, password: String) -> Unit,
+    onDaftar: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(30.dp)
+            .padding(30.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "LOGIN")
 
@@ -24,33 +28,24 @@ fun LoginScreen(onLogin: () -> Unit, onDaftar: () -> Unit) {
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp)
+            modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
         )
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp)
+            modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
         )
 
         Button(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(vertical = 10.dp),
-            onClick = { onLogin() }
+            modifier = Modifier.padding(vertical = 10.dp),
+            onClick = { onLogin(email, password) }
         ) {
             Text("LOGIN")
         }
 
-        Button(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = { onDaftar() }
-        ) {
+        Button(onClick = onDaftar) {
             Text("DAFTAR")
         }
     }
@@ -59,5 +54,5 @@ fun LoginScreen(onLogin: () -> Unit, onDaftar: () -> Unit) {
 @Preview
 @Composable
 fun LoginPreview() {
-    LoginScreen({}, {})
+    LoginScreen({ _, _ -> }, {})
 }

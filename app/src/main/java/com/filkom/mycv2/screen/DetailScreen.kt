@@ -6,12 +6,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.filkom.mycv2.data.UserData
 
 @Composable
-fun DetailScreen(onDaftar: () -> Unit = {}) {
+fun DetailScreen(
+    userData: UserData?,
+    onBackToList: () -> Unit
+) {
+    if (userData == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "Belum ada data")
+        }
+        return
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -20,26 +33,23 @@ fun DetailScreen(onDaftar: () -> Unit = {}) {
         Text(
             text = "DETAIL",
             modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(10.dp),
             textAlign = TextAlign.Center
         )
-        Text(text = "NIM: 235150407111003", fontSize = 14.sp, modifier = Modifier.padding(10.dp))
-        Text(text = "Nama: Iftina Dewi Anisa Damayanti", fontSize = 14.sp, modifier = Modifier.padding(10.dp))
-        Text(text = "Email: email@example.com", fontSize = 14.sp, modifier = Modifier.padding(10.dp))
-        Text(text = "Alamat: Jalan Veteran", fontSize = 14.sp, modifier = Modifier.padding(10.dp))
+
+        Text(text = "NIM: ${userData.nim}", fontSize = 14.sp, modifier = Modifier.padding(10.dp))
+        Text(text = "Nama: ${userData.nama}", fontSize = 14.sp, modifier = Modifier.padding(10.dp))
+        Text(text = "Email: ${userData.email}", fontSize = 14.sp, modifier = Modifier.padding(10.dp))
+        Text(text = "Alamat: ${userData.alamat}", fontSize = 14.sp, modifier = Modifier.padding(10.dp))
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = onDaftar
+            onClick = onBackToList
         ) {
-            Text("DAFTAR")
+            Text("Kembali ke Daftar")
         }
     }
-}
-
-@Preview
-@Composable
-fun DetailPreview() {
-    DetailScreen()
 }

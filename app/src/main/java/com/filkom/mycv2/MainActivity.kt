@@ -4,15 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import com.filkom.mycv2.data.UserData
 import com.filkom.mycv2.screen.DaftarScreen
 import com.filkom.mycv2.screen.DetailScreen
 import com.filkom.mycv2.screen.LoginScreen
@@ -24,63 +24,53 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyCV2Theme {
-                Scaffold { innerPadding ->
-                    NavigationApp(Modifier.padding(innerPadding))
+                val navController = rememberNavController()
+                val viewModel: UserViewModel = viewModel()
+                val userViewModel: UserViewModel = viewModel()
+
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = NavDestination.login,
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable(NavDestination.login) {
+                            LoginScreen(
+                                onLogin = { email, password ->
+                                    val success = viewModel.login(email, password)
+                                    if (success) {
+                                        navController.navigate(NavDestination.detail)
+                                    } else {
+                                        // jika belum terdaftar → arahkan ke daftar
+                                        navController.navigate(NavDestination.daftar)
+                                    }
+                                },
+                                onDaftar = {
+                                    navController.navigate(NavDestination.daftar)
+                                }
+                            )
+                        }
+
+                        composable(NavDestination.daftar) {
+                            DaftarScreen(
+                                onSimpan = { data: UserData ->
+                                    viewModel.daftar(data)
+                                    navController.navigate(NavDestination.detail)
+                                }
+                            )
+                        }
+
+                        composable(NavDestination.detail) {
+                            DetailScreen(
+                                userData = userViewModel.userData,
+                                onBackToList = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+                    }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun NavigationApp(modifier: Modifier = Modifier) {
-    val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = "login",
-        modifier = modifier
-    ) {
-        composable("login") {
-            LoginScreen(
-                onLogin = { email ->
-                    // Kirim email dan nama default ke detail
-                    navController.navigate("detail/---/UserLogin/$email/---")
-                },
-                onDaftar = {
-                    navController.navigate("daftar")
-                }
-            )
-        }
-        composable("daftar") {
-            DaftarScreen(
-                onSimpan = { nim, nama, email, alamat ->
-                    navController.navigate("detail/$nim/$nama/$email/$alamat")
-                }
-            )
-        }
-        composable(
-            route = "detail/{nim}/{nama}/{email}/{alamat}",
-            arguments = listOf(
-                navArgument("nim") { type = NavType.StringType },
-                navArgument("nama") { type = NavType.StringType },
-                navArgument("email") { type = NavType.StringType },
-                navArgument("alamat") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val nim = backStackEntry.arguments?.getString("nim") ?: "---"
-            val nama = backStackEntry.arguments?.getString("nama") ?: "No Name"
-            val email = backStackEntry.arguments?.getString("email") ?: "No Email"
-            val alamat = backStackEntry.arguments?.getString("alamat") ?: "No Address"
-
-            DetailScreen(
-                nim = nim,
-                nama = nama,
-                email = email,
-                alamat = alamat,
-                onDaftar = {
-                    navController.navigate("daftar")
-                }
-            )
         }
     }
 }
